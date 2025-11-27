@@ -24,5 +24,6 @@ router.get("/me", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Erro ao buscar dados" });
   }
 });
+router.post('/google-login', authController.googleLogin);
 
 module.exports = router;
