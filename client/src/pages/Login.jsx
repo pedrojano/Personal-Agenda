@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
 import api from "../services/api";
+import { GoogleLogin } from "@react-oauth/google";
 
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Alert } from "../components/ui/Alert";
-
 
 import { AuthLayout } from "../components/auth/AuthLayout";
 import {
@@ -39,6 +39,29 @@ export default function Login() {
       } else {
         setError("Erro de conexão.");
       }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    try {
+      console.log("Token do Google:", credentialResponse.credential);
+
+      const response = await api.post("/users/google-login", {
+        googleToken: credentialResponse.credential,
+      });
+
+      const { token, user } = response.data;
+
+      localStorage.setItem("user_token", token);
+      localStorage.setItem("user_data", JSON.stringify(user));
+
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Erro ao fazer login com Google", err);
+      setError("Erro ao autenticar com o Google");
     } finally {
       setLoading(false);
     }
@@ -84,14 +107,15 @@ export default function Login() {
 
       <AuthDivider text="Ou continue com" />
 
-      <Button type="button" variant="outline">
-        <img
-          src="https://www.svgrepo.com/show/475656/google-color.svg"
-          className="h-5 w-5 mr-2"
-          alt="Google"
+      <div className="w-full flex justify-center mt-4">
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={() => setError("Erro ao conectar com Google")}
+          text="signin_with"
+          shape="pill"
+          width="300"
         />
-        Entrar com Google
-      </Button>
+      </div>
 
       <AuthFooter
         text="Não tem uma conta?"
