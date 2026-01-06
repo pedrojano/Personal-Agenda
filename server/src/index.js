@@ -3,6 +3,8 @@ const cors = require("cors");
 const db = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const tasksRoutes = require("./routes/tasksRoutes");
+const aiRoutes = require("./routes/aiRoutes");
+
 
 
 const app = express();
@@ -10,9 +12,11 @@ const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
+
 app.get("/", (req, res) => res.send("API Agenda Pessoal - Online"));
 app.use("/users", userRoutes);
 app.use("/tasks", tasksRoutes);
+app.use("/ai", aiRoutes);
 
 
 app.listen(PORT, () => {

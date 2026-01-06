@@ -1,0 +1,15 @@
+.btn {
+  display: flex; align-items: center; justify-content: center;
+  padding: 10px 16px; border-radius: 8px; font-weight: 600;
+  transition: 0.2s; width: 100%; cursor: pointer; border: none; outline: none; font-size: 1rem;
+}
+.btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-dark); }
+.btn-outline:hover { background: #f9fafb; }
+
+.btn-danger { background-color: var(--danger); color: white; }
+.btn-danger:hover:not(:disabled) { filter: brightness(0.9); }

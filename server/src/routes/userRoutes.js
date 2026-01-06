@@ -7,6 +7,8 @@ const authMiddleware = require("../middlewares/authMiddleware");
 
 router.post("/register", userController.createUser);
 router.post("/login", authController.login);
+router.get("/me", authMiddleware, userController.getMe);
+router.put("/me", authMiddleware, userController.updateMe);
 router.get("/me", authMiddleware, async (req, res) => {
   
     try {

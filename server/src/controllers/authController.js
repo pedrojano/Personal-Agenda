@@ -61,59 +61,52 @@ exports.googleLogin = async (req, res) => {
 
   try {
     const ticket = await client.verifyIdToken({
-      idToken: googleToken,
+      idToken:  googleToken,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
 
-    const { name, email, picture } = ticket.getPayload();
+    const { name, email, sub, picture } = ticket.getPayload();
 
-    const userQuery = "SELECT * FROM users WHERE email = $1";
-    const userResult = await db.query(userQuery, [email]);
+    const userCheck = await db.query(`SELECT * FROM users WHERE email =$1`, [
+      email,
+    ]);
 
-    let user = userResult.rows[0];
+    let userId;
 
-    if (!user) {
-      const randomPassword = Math.random().toString(36).slice(-8);
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(randomPassword, salt);
-
-      const createQuery = `
-      INSERT INTO users (name, email, password, avatar_url)
-      VALUES ($1, $2, $3, $4)
-      RETURNING *`;
-
-      const newUser = await db.query(createQuery, [
-        name,
-        email,
-        hashedPassword,
+    if (userCheck.rows.length === 0) {
+      const newUser = await db.query(
+        `INSERT INTO users ( name, email, google_id, avatar_url) VALUES ($1, $2, $3, $4) RETURNING id`,
+        [name, email, sub, picture]
+      );
+      userId = newUser.rows[0].id;
+    } else {
+      userId = userCheck.rows[0].id;
+      await db.query(`UPDATE users SET avatar_url = $1 WHERE id = $2`, [
         picture,
+        userId,
       ]);
-      user = newUser.rows[0];
     }
 
     const token = jwt.sign(
       {
-        id: user.id,
-        email: user.email,
+        id: userId,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "7d" }
     );
 
     res.json({
-      messagem: "Login Google realizado",
-      token: token,
+      token,
       user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        avatar_url: user.avatar_url,
-      }
+        id: userId,
+        name,
+        email,
+        avatar_url: picture,
+      },
     });
-  } catch (error){
-    console.error("Erro no Google Login", error);
-    res.status(500).json({
-      error: "Token Google Iválido"
-    })
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erro ao autenticar com google" });
   }
+
 };

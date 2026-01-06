@@ -1,0 +1,16 @@
+.auth-container { display: flex; height: 100vh; width: 100%; }
+.auth-left {
+  flex: 1; background: var(--primary); display: flex;
+  flex-direction: column; align-items: center; justify-content: center;
+  color: white; padding: 40px; text-align: center;
+}
+.auth-right {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  background: white; padding: 20px;
+}
+.auth-box { width: 100%; max-width: 400px; }
+.auth-title { font-size: 2rem; margin-bottom: 10px; color: var(--text-dark); }
+.auth-subtitle { color: var(--text-gray); margin-bottom: 30px; }
+.auth-divider { text-align: center; margin: 20px 0; border-bottom: 1px solid var(--border); line-height: 0.1em; }
+.auth-divider span { background: #fff; padding: 0 10px; color: var(--text-gray); }
+@media (max-width: 768px) { .auth-left { display: none; } }

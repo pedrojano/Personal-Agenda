@@ -36,3 +36,49 @@ exports.createUser = async (req, res) => {
     res.status(500).json({ error: "Erro interno no servidor" });
   }
 };
+
+exports.getMe = async (req, res) => {
+  try {
+    if (!req.userId) {
+      return res
+        .status(401)
+        .json({ error: "ID de usuário não encontrado na requisição." });
+    }
+
+    const result = await db.query(
+      "SELECT id, name, email, avatar_url FROM users WHERE id = $1",
+      [req.userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Usuário não encontrado" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Erro no getMe:", error);
+    res.status(500).json({ error: "Erro ao buscar perfil" });
+  }
+};
+
+exports.updateMe = async (req, res) => {
+  const { name, email, avatar_url } = req.body;
+
+  try {
+    if (!req.userId) {
+      return res.status(401).json({ error: "Não autorizado." });
+    }
+
+    await db.query("UPDATE users SET name = $1, email = $2, avatar_url = $3 WHERE id = $4", [
+      name,
+      email,
+      avatar_url,
+      req.userId,
+    ]);
+    res.json({ message: "Perfil atualizado com sucesso!" });
+  } catch (error) {
+    console.error("Erro no updateMe:", error);
+
+    res.status(500).json({ error: "Erro ao atualizar perfil" });
+  }
+};
